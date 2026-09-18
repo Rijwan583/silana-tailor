@@ -895,3 +895,9 @@ footer strong {
         margin-right: 0;
     }
 }
+@media (max-width: 850px) {
+    .logo {
+        margin-left: 0;
+        padding-left: 20px;
+    }
+}
