@@ -537,3 +537,333 @@ footer strong {
 .about-points span::first-letter {
   color: #c9a86a;
 }
+/* =========================================
+   SILANA TAILOR - MOBILE FIRST FIX
+========================================= */
+
+@media (max-width: 850px) {
+
+    html,
+    body {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    .navbar {
+        width: 100%;
+    }
+
+    .nav-container {
+        width: 100%;
+        padding: 16px 18px;
+    }
+
+    .brand {
+        display: flex;
+        flex-direction: column;
+        line-height: 1;
+    }
+
+    .brand-main {
+        font-family: "Playfair Display", serif;
+        font-size: 23px;
+        font-weight: 700;
+        color: #e5c98d;
+        letter-spacing: 2px;
+    }
+
+    .brand-sub {
+        font-size: 10px;
+        color: #c9a86a;
+        letter-spacing: 4px;
+        margin-top: 5px;
+    }
+
+    .menu-btn {
+        display: block;
+        font-size: 30px;
+        padding: 0;
+    }
+
+    .nav-links {
+        top: 68px;
+        left: 0;
+        width: 100%;
+        padding: 22px 20px;
+    }
+
+    /* HERO */
+
+    .hero {
+        width: 100%;
+        min-height: auto;
+        padding: 105px 20px 55px;
+        display: block;
+    }
+
+    .hero-copy {
+        width: 100%;
+        max-width: 100%;
+        padding: 0;
+    }
+
+    .eyebrow {
+        font-size: 11px;
+        letter-spacing: 2px;
+    }
+
+    .hero h1 {
+        font-size: 52px;
+        line-height: 1;
+        margin: 15px 0 22px;
+    }
+
+    .hero-text {
+        width: 100%;
+        max-width: 100%;
+        font-size: 15px;
+        line-height: 1.7;
+        margin-bottom: 25px;
+    }
+
+    .actions {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .actions .btn {
+        width: 100%;
+        display: block;
+        text-align: center;
+        padding: 14px 12px;
+    }
+
+    .hero-meta {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 25px;
+        font-size: 13px;
+    }
+
+    .hero-meta span {
+        white-space: nowrap;
+    }
+
+    /* HERO IMAGE */
+
+    .hero-visual {
+        width: 100%;
+        height: 430px;
+        margin-top: 35px;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid var(--border);
+    }
+
+    .hero-visual img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+    }
+
+    .hero-badge {
+        position: absolute;
+        right: 15px;
+        bottom: 15px;
+        background: rgba(8,8,8,0.85);
+        padding: 12px 15px;
+        border: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .hero-badge strong {
+        color: #f7f4ee;
+        font-family: "Playfair Display", serif;
+        font-size: 20px;
+    }
+
+    .hero-badge small {
+        color: #c9a86a;
+        letter-spacing: 3px;
+    }
+
+    /* SECTIONS */
+
+    .section,
+    .collection-section,
+    .about-section,
+    .contact-section {
+        width: 100%;
+        padding: 70px 20px;
+    }
+
+    .section-intro {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 35px;
+    }
+
+    .section-intro h2 {
+        font-family: "Playfair Display", serif;
+        font-size: 38px;
+        line-height: 1.1;
+        margin-top: 10px;
+    }
+
+    .section-intro h2 span {
+        color: var(--gold);
+    }
+
+    /* SERVICES */
+
+    .service-grid {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .service-card {
+        width: 100%;
+        padding: 28px 20px;
+    }
+
+    /* COLLECTION */
+
+    .collection-grid {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .product-card {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .product-card img {
+        width: 100%;
+        height: 400px;
+        object-fit: cover;
+    }
+
+    .product-info {
+        padding: 20px;
+    }
+
+    /* ABOUT */
+
+    .about-section {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+    }
+
+    .about-image {
+        width: 100%;
+        height: 380px;
+    }
+
+    .about-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .about-copy {
+        width: 100%;
+    }
+
+    .about-copy h2 {
+        font-family: "Playfair Display", serif;
+        font-size: 40px;
+        line-height: 1.1;
+        margin: 12px 0 20px;
+    }
+
+    .about-copy h2 span {
+        color: var(--gold);
+    }
+
+    /* CONTACT */
+
+    .contact-section {
+        text-align: center;
+    }
+
+    .contact-section h2 {
+        font-family: "Playfair Display", serif;
+        font-size: 38px;
+        line-height: 1.1;
+        margin: 12px 0 18px;
+    }
+
+    .contact-section h2 span {
+        color: var(--gold);
+    }
+
+    .contact-section .location {
+        color: var(--muted);
+        margin-bottom: 25px;
+    }
+
+    .actions.center {
+        align-items: center;
+    }
+
+    /* FOOTER */
+
+    footer {
+        width: 100%;
+        padding: 30px 20px;
+        text-align: center;
+    }
+}
+
+
+/* SMALL PHONES */
+
+@media (max-width: 480px) {
+
+    .hero {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .hero h1 {
+        font-size: 46px;
+    }
+
+    .hero-visual {
+        height: 400px;
+    }
+
+    .section,
+    .collection-section,
+    .about-section,
+    .contact-section {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .section-intro h2 {
+        font-size: 34px;
+    }
+
+    .product-card img {
+        height: 360px;
+    }
+
+    .about-copy h2,
+    .contact-section h2 {
+        font-size: 35px;
+    }
+}
