@@ -1,28 +1,35 @@
 // ========================================
 // SILANA TAILOR
+// SUPABASE + PERMANENT PRODUCT GALLERY
 // ========================================
 
+
 // ========================================
-// SUPABASE CONFIG
+// SUPABASE CONFIGURATION
 // ========================================
 
-const SUPABASE_URL = "https://yilabtpkpbbfpmutwnuy.supabase.co";
+const SUPABASE_URL =
+    "https://yilabtpkpbbfpmutwnuy.supabase.co";
 
 const SUPABASE_PUBLISHABLE_KEY =
     "sb_publishable_21v6WZAxDRwg5oEcXfUQAA_jPWQXU_i";
 
-const supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY
-);
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+    );
 
 
 // ========================================
 // MOBILE MENU
 // ========================================
 
-const menuBtn = document.querySelector(".menu-btn");
-const navLinks = document.querySelector(".nav-links");
+const menuBtn =
+    document.querySelector(".menu-btn");
+
+const navLinks =
+    document.querySelector(".nav-links");
 
 if (menuBtn && navLinks) {
 
@@ -30,18 +37,20 @@ if (menuBtn && navLinks) {
         navLinks.classList.toggle("show");
     });
 
-    document.querySelectorAll(".nav-links a").forEach(link => {
+    document
+        .querySelectorAll(".nav-links a")
+        .forEach(link => {
 
-        link.addEventListener("click", () => {
-            navLinks.classList.remove("show");
+            link.addEventListener("click", () => {
+                navLinks.classList.remove("show");
+            });
+
         });
-
-    });
 }
 
 
 // ========================================
-// PRODUCT GALLERY
+// PRODUCT GALLERY DATA
 // ========================================
 
 const gallery = {
@@ -75,28 +84,49 @@ const gallery = {
 
 
 // ========================================
+// CHECK ADMIN LOGIN
+// ========================================
+
+async function isAdminLoggedIn() {
+
+    const {
+        data: { user }
+    } = await supabaseClient.auth.getUser();
+
+    return !!user;
+}
+
+
+// ========================================
 // ADMIN LOGIN
 // ========================================
 
 async function adminLogin() {
 
-    const email = prompt("Enter admin email:");
+    const email =
+        prompt("Enter admin email:");
 
     if (!email) {
         return false;
     }
 
-    const password = prompt("Enter admin password:");
+
+    const password =
+        prompt("Enter admin password:");
 
     if (!password) {
         return false;
     }
 
-    const { error } =
+
+    const {
+        error
+    } =
         await supabaseClient.auth.signInWithPassword({
             email: email,
             password: password
         });
+
 
     if (error) {
 
@@ -108,6 +138,7 @@ async function adminLogin() {
         return false;
     }
 
+
     alert("Admin login successful!");
 
     return true;
@@ -115,47 +146,39 @@ async function adminLogin() {
 
 
 // ========================================
-// CHECK ADMIN LOGIN
-// ========================================
-
-async function checkAdminLogin() {
-
-    const {
-        data: { user }
-    } = await supabaseClient.auth.getUser();
-
-    return !!user;
-}
-
-
-// ========================================
 // LOAD PHOTOS FROM SUPABASE
 // ========================================
 
-async function loadSupabasePhotos(type, grid) {
+async function loadSupabasePhotos(
+    type,
+    grid
+) {
 
     const {
         data,
         error
-    } = await supabaseClient.storage
-        .from("products")
-        .list(type, {
-            limit: 100,
-            sortBy: {
-                column: "created_at",
-                order: "desc"
-            }
-        });
+    } =
+        await supabaseClient.storage
+            .from("products")
+            .list(type, {
+                limit: 100,
+                sortBy: {
+                    column: "created_at",
+                    order: "desc"
+                }
+            });
+
 
     if (error) {
 
-        console.log(
-            "Supabase photo loading error:",
+        console.error(
+            "Could not load photos:",
             error
         );
 
         return;
     }
+
 
     if (!data || data.length === 0) {
         return;
@@ -164,7 +187,6 @@ async function loadSupabasePhotos(type, grid) {
 
     data.forEach(file => {
 
-        // Ignore folders
         if (!file.name) {
             return;
         }
@@ -175,14 +197,17 @@ async function loadSupabasePhotos(type, grid) {
 
 
         const {
-            data: publicData
+            data: publicUrlData
         } =
             supabaseClient.storage
                 .from("products")
                 .getPublicUrl(filePath);
 
 
-        if (!publicData || !publicData.publicUrl) {
+        if (
+            !publicUrlData ||
+            !publicUrlData.publicUrl
+        ) {
             return;
         }
 
@@ -192,7 +217,14 @@ async function loadSupabasePhotos(type, grid) {
 
 
         img.src =
-            publicData.publicUrl;
+            publicUrlData.publicUrl;
+
+
+        img.alt =
+            `${type} collection`;
+
+
+        img.loading = "lazy";
 
 
         img.style.cssText = `
@@ -200,10 +232,12 @@ async function loadSupabasePhotos(type, grid) {
             height:300px;
             object-fit:cover;
             border-radius:8px;
+            display:block;
         `;
 
 
-        img.loading = "lazy";
+        img.className =
+            "supabase-photo";
 
 
         grid.appendChild(img);
@@ -214,22 +248,26 @@ async function loadSupabasePhotos(type, grid) {
 
 
 // ========================================
-// UPLOAD PHOTOS
+// UPLOAD PHOTOS TO SUPABASE
 // ========================================
 
-async function uploadPhotos(type, files, grid) {
+async function uploadPhotos(
+    type,
+    files,
+    grid
+) {
 
     if (!files || files.length === 0) {
         return;
     }
 
 
-    // Check login
+    // Check whether admin is already logged in
     let loggedIn =
-        await checkAdminLogin();
+        await isAdminLoggedIn();
 
 
-    // If not logged in → login
+    // If not logged in, ask for login
     if (!loggedIn) {
 
         loggedIn =
@@ -241,93 +279,104 @@ async function uploadPhotos(type, files, grid) {
     }
 
 
-    let uploadedCount = 0;
+    let uploaded = 0;
 
 
     for (const file of files) {
 
-        try {
+        // Only images
+        if (
+            !file.type ||
+            !file.type.startsWith("image/")
+        ) {
 
-            // Safe filename
-            const safeName =
-                file.name.replace(
+            alert(
+                `${file.name} is not an image.`
+            );
+
+            continue;
+        }
+
+
+        // Make filename safe
+        const safeName =
+            file.name
+                .replace(
                     /[^\w.-]/g,
                     "_"
                 );
 
 
-            // Unique filename
-            const uniqueName =
-                `${Date.now()}-${Math.random()
-                    .toString(36)
-                    .substring(2, 8)}-${safeName}`;
+        // Unique filename
+        const uniqueName =
+            `${Date.now()}-${Math.random()
+                .toString(36)
+                .substring(2, 9)}-${safeName}`;
 
 
-            // Category folder
-            const filePath =
-                `${type}/${uniqueName}`;
+        // Example:
+        // shirt/1723456789-abcd-shirt.jpg
+        const filePath =
+            `${type}/${uniqueName}`;
 
 
-            const {
-                error
-            } = await supabaseClient.storage
+        const {
+            error
+        } =
+            await supabaseClient.storage
                 .from("products")
                 .upload(
                     filePath,
                     file,
                     {
-                        contentType: file.type,
                         cacheControl: "3600",
+                        contentType: file.type,
                         upsert: false
                     }
                 );
 
 
-            if (error) {
+        if (error) {
 
-                console.error(
-                    "Upload error:",
-                    error
-                );
+            console.error(
+                "Upload error:",
+                error
+            );
 
-                alert(
-                    `Failed to upload ${file.name}\n\n${error.message}`
-                );
+            alert(
+                "Photo upload failed.\n\n" +
+                error.message
+            );
 
-                continue;
-            }
-
-
-            uploadedCount++;
-
-
-        } catch (err) {
-
-            console.error(err);
-
+            continue;
         }
+
+
+        uploaded++;
 
     }
 
 
-    // Refresh gallery
-    if (uploadedCount > 0) {
+    // Upload completed
+    if (uploaded > 0) {
 
         alert(
-            `${uploadedCount} photo(s) uploaded successfully!`
+            `${uploaded} photo(s) uploaded successfully!`
         );
 
 
-        // Remove old dynamically loaded photos
+        // Remove old Supabase photos
         grid
             .querySelectorAll(
                 ".supabase-photo"
             )
-            .forEach(img => img.remove());
+            .forEach(photo => {
+                photo.remove();
+            });
 
 
-        // Reload everything
-        await reloadGalleryPhotos(
+        // Load fresh photos
+        await loadSupabasePhotos(
             type,
             grid
         );
@@ -338,105 +387,21 @@ async function uploadPhotos(type, files, grid) {
 
 
 // ========================================
-// RELOAD SUPABASE PHOTOS
-// ========================================
-
-async function reloadGalleryPhotos(type, grid) {
-
-    const {
-        data,
-        error
-    } = await supabaseClient.storage
-        .from("products")
-        .list(type, {
-            limit: 100,
-            sortBy: {
-                column: "created_at",
-                order: "desc"
-            }
-        });
-
-
-    if (error) {
-
-        console.log(error);
-
-        return;
-    }
-
-
-    if (!data) {
-        return;
-    }
-
-
-    data.forEach(file => {
-
-        if (!file.name) {
-            return;
-        }
-
-
-        const filePath =
-            `${type}/${file.name}`;
-
-
-        const {
-            data: publicData
-        } =
-            supabaseClient.storage
-                .from("products")
-                .getPublicUrl(filePath);
-
-
-        if (!publicData?.publicUrl) {
-            return;
-        }
-
-
-        const img =
-            document.createElement("img");
-
-
-        img.src =
-            publicData.publicUrl;
-
-
-        img.className =
-            "supabase-photo";
-
-
-        img.style.cssText = `
-            width:100%;
-            height:300px;
-            object-fit:cover;
-            border-radius:8px;
-        `;
-
-
-        img.loading = "lazy";
-
-
-        grid.appendChild(img);
-
-    });
-
-}
-
-
-// ========================================
-// OPEN GALLERY
+// OPEN PRODUCT GALLERY
 // ========================================
 
 async function openGallery(type) {
 
-    const item = gallery[type];
+    const item =
+        gallery[type];
+
 
     if (!item) {
         return;
     }
 
 
+    // Create popup
     const popup =
         document.createElement("div");
 
@@ -462,15 +427,24 @@ async function openGallery(type) {
             border-radius:12px;
         ">
 
-            <button id="closeGallery" style="
-                float:right;
-                background:none;
-                border:none;
-                color:#c9a86a;
-                font-size:35px;
-                cursor:pointer;
-            ">×</button>
+            <!-- CLOSE BUTTON -->
 
+            <button
+                id="closeGallery"
+                style="
+                    float:right;
+                    background:none;
+                    border:none;
+                    color:#c9a86a;
+                    font-size:35px;
+                    cursor:pointer;
+                "
+            >
+                ×
+            </button>
+
+
+            <!-- TITLE -->
 
             <h2 style="
                 color:#c9a86a;
@@ -481,40 +455,53 @@ async function openGallery(type) {
             </h2>
 
 
-            <div id="photoGrid" style="
-                display:grid;
-                grid-template-columns:
-                repeat(auto-fit,minmax(220px,1fr));
-                gap:18px;
-            ">
+            <!-- PHOTO GRID -->
+
+            <div
+                id="photoGrid"
+                style="
+                    display:grid;
+                    grid-template-columns:
+                    repeat(auto-fit,minmax(220px,1fr));
+                    gap:18px;
+                "
+            >
+
+                <!-- ORIGINAL IMAGE -->
 
                 <img
                     src="${item.image}"
+                    alt="${item.title}"
                     style="
                         width:100%;
                         height:300px;
                         object-fit:cover;
                         border-radius:8px;
+                        display:block;
                     "
                 >
 
             </div>
 
 
+            <!-- ADMIN UPLOAD -->
+
             <div style="
                 text-align:center;
                 margin-top:25px;
             ">
 
-                <label style="
-                    display:inline-block;
-                    background:#c9a86a;
-                    color:#111;
-                    padding:14px 24px;
-                    border-radius:6px;
-                    font-weight:bold;
-                    cursor:pointer;
-                ">
+                <label
+                    style="
+                        display:inline-block;
+                        background:#c9a86a;
+                        color:#111;
+                        padding:14px 24px;
+                        border-radius:6px;
+                        font-weight:bold;
+                        cursor:pointer;
+                    "
+                >
 
                     + Add More Photo
 
@@ -551,16 +538,22 @@ async function openGallery(type) {
     // CLOSE GALLERY
     // ========================================
 
-    document
-        .getElementById("closeGallery")
-        .addEventListener(
-            "click",
-            () => popup.remove()
+    const closeButton =
+        document.getElementById(
+            "closeGallery"
         );
 
 
+    closeButton.addEventListener(
+        "click",
+        () => {
+            popup.remove();
+        }
+    );
+
+
     // ========================================
-    // LOAD SUPABASE PHOTOS
+    // PHOTO GRID
     // ========================================
 
     const grid =
@@ -569,6 +562,10 @@ async function openGallery(type) {
         );
 
 
+    // ========================================
+    // LOAD SAVED SUPABASE PHOTOS
+    // ========================================
+
     await loadSupabasePhotos(
         type,
         grid
@@ -576,26 +573,31 @@ async function openGallery(type) {
 
 
     // ========================================
-    // ADD MORE PHOTOS
+    // ADD MORE PHOTO BUTTON
     // ========================================
 
-    document
-        .getElementById("addPhotos")
-        .addEventListener(
-            "change",
-            async function () {
-
-                await uploadPhotos(
-                    type,
-                    this.files,
-                    grid
-                );
-
-                // Clear input
-                this.value = "";
-
-            }
+    const fileInput =
+        document.getElementById(
+            "addPhotos"
         );
+
+
+    fileInput.addEventListener(
+        "change",
+        async function () {
+
+            await uploadPhotos(
+                type,
+                this.files,
+                grid
+            );
+
+
+            // Reset file input
+            this.value = "";
+
+        }
+    );
 
 }
 
@@ -610,6 +612,7 @@ document
     )
     .forEach(card => {
 
+
         const text =
             card.innerText.toLowerCase();
 
@@ -617,11 +620,18 @@ document
         let type = null;
 
 
-        if (text.includes("shirt")) {
+        // SHIRT
+
+        if (
+            text.includes("shirt")
+        ) {
 
             type = "shirt";
 
         }
+
+
+        // TROUSER / PANTS
 
         else if (
             text.includes("trouser") ||
@@ -632,6 +642,9 @@ document
 
         }
 
+
+        // SHERWANI
+
         else if (
             text.includes("sherwani")
         ) {
@@ -640,6 +653,9 @@ document
 
         }
 
+
+        // KURTA
+
         else if (
             text.includes("kurta")
         ) {
@@ -647,6 +663,9 @@ document
             type = "kurta";
 
         }
+
+
+        // SUIT / WEDDING
 
         else if (
             text.includes("suit") ||
@@ -658,6 +677,8 @@ document
         }
 
 
+        // MAKE CARD CLICKABLE
+
         if (type) {
 
             card.style.cursor =
@@ -666,7 +687,7 @@ document
 
             card.addEventListener(
                 "click",
-                function () {
+                () => {
 
                     openGallery(type);
 
