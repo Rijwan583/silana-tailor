@@ -5,7 +5,7 @@
 
 
 // ========================================
-// SUPABASE CONFIG
+// SUPABASE
 // ========================================
 
 const SUPABASE_URL =
@@ -38,12 +38,11 @@ if (menuBtn && navLinks) {
     });
 
     document.querySelectorAll(".nav-links a").forEach(link => {
-
         link.addEventListener("click", () => {
             navLinks.classList.remove("show");
         });
-
     });
+
 }
 
 
@@ -120,7 +119,7 @@ function getProductType(text) {
 
 
 // ========================================
-// CHECK ADMIN LOGIN
+// CHECK OWNER LOGIN
 // ========================================
 
 async function checkAdminLogin() {
@@ -134,45 +133,53 @@ async function checkAdminLogin() {
         error
     } = await supabaseClient.auth.getUser();
 
-    if (error || !data || !data.user) {
+    if (error) {
         return false;
     }
 
-    return true;
+    return !!data.user;
 }
 
 
 // ========================================
-// OWNER LOGIN POPUP
+// OWNER LOGIN MODAL
 // ========================================
 
 function showLoginPopup() {
 
     return new Promise((resolve) => {
 
-        const oldPopup =
-            document.getElementById("silanaLoginPopup");
+        const old =
+            document.getElementById(
+                "silanaLoginPopup"
+            );
 
-        if (oldPopup) {
-            oldPopup.remove();
+        if (old) {
+            old.remove();
         }
+
 
         const popup =
             document.createElement("div");
 
-        popup.id = "silanaLoginPopup";
+        popup.id =
+            "silanaLoginPopup";
+
 
         popup.style.cssText = `
             position:fixed;
             inset:0;
-            background:rgba(0,0,0,0.88);
-            z-index:1000001;
+            width:100%;
+            height:100%;
+            background:rgba(0,0,0,0.90);
+            z-index:1000000;
             display:flex;
             align-items:center;
             justify-content:center;
             padding:20px;
             box-sizing:border-box;
         `;
+
 
         popup.innerHTML = `
 
@@ -185,15 +192,14 @@ function showLoginPopup() {
                 padding:28px;
                 box-sizing:border-box;
                 position:relative;
-                box-shadow:0 10px 40px rgba(0,0,0,0.5);
             ">
 
                 <button
                     id="silanaLoginClose"
                     style="
                         position:absolute;
-                        right:15px;
-                        top:10px;
+                        top:8px;
+                        right:14px;
                         background:none;
                         border:none;
                         color:#c9a86a;
@@ -204,6 +210,7 @@ function showLoginPopup() {
                     ×
                 </button>
 
+
                 <h2 style="
                     color:#c9a86a;
                     text-align:center;
@@ -212,200 +219,250 @@ function showLoginPopup() {
                     Owner Login
                 </h2>
 
+
                 <p style="
                     color:#aaa;
                     text-align:center;
                     font-size:13px;
                     margin-bottom:22px;
                 ">
-                    Login to add photos to Silana Tailor
+                    Login to add photos
                 </p>
 
+
                 <input
-                    id="silanaAdminEmail"
+                    id="silanaEmail"
                     type="email"
                     placeholder="Owner Email"
                     autocomplete="username"
                     style="
                         width:100%;
+                        box-sizing:border-box;
                         padding:13px;
                         margin-bottom:12px;
                         border-radius:6px;
                         border:1px solid #555;
                         background:#222;
-                        color:white;
-                        box-sizing:border-box;
+                        color:#fff;
                         outline:none;
                     "
                 >
 
+
                 <input
-                    id="silanaAdminPassword"
+                    id="silanaPassword"
                     type="password"
                     placeholder="Password"
                     autocomplete="current-password"
                     style="
                         width:100%;
+                        box-sizing:border-box;
                         padding:13px;
                         margin-bottom:16px;
                         border-radius:6px;
                         border:1px solid #555;
                         background:#222;
-                        color:white;
-                        box-sizing:border-box;
+                        color:#fff;
                         outline:none;
                     "
                 >
+
 
                 <button
                     id="silanaLoginButton"
                     style="
                         width:100%;
                         padding:13px;
-                        background:#c9a86a;
-                        color:#111;
                         border:none;
                         border-radius:6px;
+                        background:#c9a86a;
+                        color:#111;
                         font-weight:bold;
                         cursor:pointer;
                         font-size:15px;
                     "
                 >
-                    Login & Continue
+                    Login
                 </button>
+
 
                 <p
                     id="silanaLoginMessage"
                     style="
-                        color:#e0a96d;
+                        color:#d9b87c;
                         text-align:center;
                         font-size:13px;
-                        margin:14px 0 0;
                         min-height:18px;
+                        margin-top:14px;
                     "
                 ></p>
 
             </div>
         `;
 
+
         document.body.appendChild(popup);
 
-        const emailInput =
-            document.getElementById("silanaAdminEmail");
 
-        const passwordInput =
-            document.getElementById("silanaAdminPassword");
+        const email =
+            document.getElementById(
+                "silanaEmail"
+            );
+
+        const password =
+            document.getElementById(
+                "silanaPassword"
+            );
 
         const loginButton =
-            document.getElementById("silanaLoginButton");
+            document.getElementById(
+                "silanaLoginButton"
+            );
 
         const message =
-            document.getElementById("silanaLoginMessage");
+            document.getElementById(
+                "silanaLoginMessage"
+            );
 
         const closeButton =
-            document.getElementById("silanaLoginClose");
+            document.getElementById(
+                "silanaLoginClose"
+            );
 
 
-        closeButton.addEventListener("click", () => {
+        closeButton.addEventListener(
+            "click",
+            () => {
 
-            popup.remove();
-            resolve(false);
+                popup.remove();
 
-        });
+                resolve(false);
 
-
-        loginButton.addEventListener("click", async () => {
-
-            if (!supabaseClient) {
-
-                message.textContent =
-                    "Supabase is not loaded. Refresh the website.";
-
-                return;
             }
+        );
 
 
-            const email =
-                emailInput.value.trim();
+        loginButton.addEventListener(
+            "click",
+            async () => {
 
-            const password =
-                passwordInput.value;
+                if (!supabaseClient) {
 
+                    message.textContent =
+                        "Supabase is not loaded.";
 
-            if (!email || !password) {
-
-                message.textContent =
-                    "Please enter email and password.";
-
-                return;
-            }
+                    return;
+                }
 
 
-            loginButton.disabled = true;
-            loginButton.textContent = "Logging in...";
-            message.textContent = "";
+                const emailValue =
+                    email.value.trim();
+
+                const passwordValue =
+                    password.value;
 
 
-            const {
-                data,
-                error
-            } =
-                await supabaseClient.auth.signInWithPassword({
-                    email: email,
-                    password: password
-                });
+                if (
+                    !emailValue ||
+                    !passwordValue
+                ) {
+
+                    message.textContent =
+                        "Enter email and password.";
+
+                    return;
+                }
 
 
-            if (error) {
+                loginButton.disabled =
+                    true;
 
-                message.textContent =
-                    "Login failed: " + error.message;
-
-                loginButton.disabled = false;
                 loginButton.textContent =
-                    "Login & Continue";
+                    "Logging in...";
 
-                return;
+                message.textContent = "";
+
+
+                const {
+                    data,
+                    error
+                } =
+                    await supabaseClient.auth
+                        .signInWithPassword({
+                            email:
+                                emailValue,
+                            password:
+                                passwordValue
+                        });
+
+
+                if (error) {
+
+                    message.textContent =
+                        "Login failed: " +
+                        error.message;
+
+                    loginButton.disabled =
+                        false;
+
+                    loginButton.textContent =
+                        "Login";
+
+                    return;
+                }
+
+
+                if (
+                    !data ||
+                    !data.user
+                ) {
+
+                    message.textContent =
+                        "Login failed.";
+
+                    loginButton.disabled =
+                        false;
+
+                    loginButton.textContent =
+                        "Login";
+
+                    return;
+                }
+
+
+                popup.remove();
+
+                resolve(true);
+
             }
+        );
 
 
-            if (!data || !data.user) {
+        password.addEventListener(
+            "keydown",
+            (event) => {
 
-                message.textContent =
-                    "Login failed. Please try again.";
+                if (
+                    event.key === "Enter"
+                ) {
+                    loginButton.click();
+                }
 
-                loginButton.disabled = false;
-                loginButton.textContent =
-                    "Login & Continue";
-
-                return;
             }
-
-
-            popup.remove();
-
-            resolve(true);
-
-        });
-
-
-        passwordInput.addEventListener("keydown", (event) => {
-
-            if (event.key === "Enter") {
-                loginButton.click();
-            }
-
-        });
+        );
 
     });
 }
 
 
 // ========================================
-// LOAD SAVED SUPABASE PHOTOS
+// LOAD PHOTOS FROM SUPABASE
 // ========================================
 
-async function loadSupabasePhotos(type, grid) {
+async function loadSupabasePhotos(
+    type,
+    grid
+) {
 
     if (!supabaseClient) {
         return;
@@ -418,19 +475,22 @@ async function loadSupabasePhotos(type, grid) {
     } =
         await supabaseClient.storage
             .from("products")
-            .list(type, {
-                limit: 100,
-                sortBy: {
-                    column: "created_at",
-                    order: "desc"
+            .list(
+                type,
+                {
+                    limit:100,
+                    sortBy:{
+                        column:"created_at",
+                        order:"desc"
+                    }
                 }
-            });
+            );
 
 
     if (error) {
 
         console.log(
-            "Could not load photos:",
+            "Photo loading error:",
             error.message
         );
 
@@ -438,7 +498,10 @@ async function loadSupabasePhotos(type, grid) {
     }
 
 
-    if (!data || data.length === 0) {
+    if (
+        !data ||
+        data.length === 0
+    ) {
         return;
     }
 
@@ -450,16 +513,16 @@ async function loadSupabasePhotos(type, grid) {
         }
 
 
-        const filePath =
+        const path =
             `${type}/${file.name}`;
 
 
         const {
-            data: urlData
+            data:urlData
         } =
             supabaseClient.storage
                 .from("products")
-                .getPublicUrl(filePath);
+                .getPublicUrl(path);
 
 
         if (
@@ -504,9 +567,16 @@ async function loadSupabasePhotos(type, grid) {
 // UPLOAD PHOTOS
 // ========================================
 
-async function uploadPhotos(type, files, grid) {
+async function uploadPhotos(
+    type,
+    files,
+    grid
+) {
 
-    if (!files || files.length === 0) {
+    if (
+        !files ||
+        files.length === 0
+    ) {
         return;
     }
 
@@ -514,40 +584,24 @@ async function uploadPhotos(type, files, grid) {
     if (!supabaseClient) {
 
         alert(
-            "Supabase is not loaded. Please refresh the website."
+            "Supabase is not loaded. Refresh the website."
         );
 
         return;
     }
 
 
-    let loggedIn =
-        await checkAdminLogin();
-
-
-    if (!loggedIn) {
-
-        loggedIn =
-            await showLoginPopup();
-
-
-        if (!loggedIn) {
-            return;
-        }
-
-    }
-
-
     let uploaded = 0;
 
 
-    for (const file of files) {
+    for (
+        const file of files
+    ) {
 
         if (
             !file.type ||
             !file.type.startsWith("image/")
         ) {
-
             continue;
         }
 
@@ -562,7 +616,7 @@ async function uploadPhotos(type, files, grid) {
         const uniqueName =
             `${Date.now()}-${Math.random()
                 .toString(36)
-                .substring(2, 8)}-${safeName}`;
+                .substring(2,8)}-${safeName}`;
 
 
         const path =
@@ -580,10 +634,8 @@ async function uploadPhotos(type, files, grid) {
                     {
                         contentType:
                             file.type,
-
                         cacheControl:
                             "3600",
-
                         upsert:
                             false
                     }
@@ -592,15 +644,12 @@ async function uploadPhotos(type, files, grid) {
 
         if (error) {
 
-            console.log(
-                "Upload error:",
-                error
-            );
-
             alert(
                 "Upload failed:\n\n" +
                 error.message
             );
+
+            console.log(error);
 
             continue;
         }
@@ -620,7 +669,9 @@ async function uploadPhotos(type, files, grid) {
 
 
         grid
-            .querySelectorAll(".supabase-photo")
+            .querySelectorAll(
+                ".supabase-photo"
+            )
             .forEach(img => {
                 img.remove();
             });
@@ -637,73 +688,241 @@ async function uploadPhotos(type, files, grid) {
 
 
 // ========================================
-// OPEN FILE PICKER AFTER LOGIN
+// CHOOSE PHOTO
+// IMPORTANT FOR IPHONE
 // ========================================
 
-async function startPhotoUpload(type, grid) {
+function choosePhotos(
+    type,
+    grid
+) {
 
-    if (!supabaseClient) {
+    return new Promise((resolve) => {
 
-        alert(
-            "Supabase is not loaded. Please refresh the website."
+        const input =
+            document.createElement("input");
+
+
+        input.type =
+            "file";
+
+        input.accept =
+            "image/*";
+
+        input.multiple =
+            true;
+
+
+        input.style.display =
+            "none";
+
+
+        document.body.appendChild(
+            input
         );
 
-        return;
-    }
+
+        input.addEventListener(
+            "change",
+            async () => {
+
+                if (
+                    input.files &&
+                    input.files.length > 0
+                ) {
+
+                    await uploadPhotos(
+                        type,
+                        input.files,
+                        grid
+                    );
+
+                }
 
 
-    let loggedIn =
+                input.remove();
+
+                resolve();
+
+            },
+            {
+                once:true
+            }
+        );
+
+
+        // This click happens directly
+        // from the owner's button press.
+        input.click();
+
+    });
+
+}
+
+
+// ========================================
+// OPEN OWNER PHOTO CONTROL
+// ========================================
+
+async function openOwnerPhotoControl(
+    type,
+    grid
+) {
+
+    const loggedIn =
         await checkAdminLogin();
 
 
     if (!loggedIn) {
 
-        loggedIn =
+        const success =
             await showLoginPopup();
 
 
-        if (!loggedIn) {
+        if (!success) {
             return;
         }
 
     }
 
 
-    const fileInput =
-        document.createElement("input");
+    // Login complete.
+    // Now show a REAL button.
+    // User clicks it to open iPhone picker.
+
+    const control =
+        document.createElement("div");
 
 
-    fileInput.type = "file";
-    fileInput.accept = "image/*";
-    fileInput.multiple = true;
+    control.id =
+        "silanaChoosePhotoControl";
 
 
-    fileInput.addEventListener(
-        "change",
-        async () => {
+    control.style.cssText = `
+        position:fixed;
+        inset:0;
+        z-index:1000001;
+        background:rgba(0,0,0,0.88);
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        padding:20px;
+        box-sizing:border-box;
+    `;
 
-            if (
-                fileInput.files &&
-                fileInput.files.length > 0
-            ) {
 
-                await uploadPhotos(
-                    type,
-                    fileInput.files,
-                    grid
-                );
+    control.innerHTML = `
 
-            }
+        <div style="
+            width:100%;
+            max-width:380px;
+            background:#111;
+            border:1px solid #c9a86a;
+            border-radius:12px;
+            padding:28px;
+            text-align:center;
+            box-sizing:border-box;
+        ">
+
+            <h2 style="
+                color:#c9a86a;
+                margin:0 0 10px;
+            ">
+                Owner Verified
+            </h2>
+
+
+            <p style="
+                color:#aaa;
+                font-size:14px;
+                margin-bottom:22px;
+            ">
+                Choose photos to add to this collection.
+            </p>
+
+
+            <button
+                id="silanaChoosePhotosButton"
+                style="
+                    width:100%;
+                    padding:14px;
+                    border:none;
+                    border-radius:6px;
+                    background:#c9a86a;
+                    color:#111;
+                    font-weight:bold;
+                    font-size:15px;
+                    cursor:pointer;
+                "
+            >
+                Choose Photos
+            </button>
+
+
+            <button
+                id="silanaCancelChoose"
+                style="
+                    width:100%;
+                    margin-top:10px;
+                    padding:12px;
+                    border:1px solid #555;
+                    border-radius:6px;
+                    background:#222;
+                    color:#fff;
+                    cursor:pointer;
+                "
+            >
+                Cancel
+            </button>
+
+        </div>
+    `;
+
+
+    document.body.appendChild(
+        control
+    );
+
+
+    const chooseButton =
+        document.getElementById(
+            "silanaChoosePhotosButton"
+        );
+
+
+    const cancelButton =
+        document.getElementById(
+            "silanaCancelChoose"
+        );
+
+
+    cancelButton.addEventListener(
+        "click",
+        () => {
+
+            control.remove();
 
         }
     );
 
 
-    document.body.appendChild(fileInput);
+    chooseButton.addEventListener(
+        "click",
+        async () => {
 
-    fileInput.click();
+            // IMPORTANT:
+            // file picker is opened directly
+            // from this button click.
 
-    fileInput.remove();
+            control.remove();
+
+            await choosePhotos(
+                type,
+                grid
+            );
+
+        }
+    );
 
 }
 
@@ -854,25 +1073,25 @@ async function openGallery(type) {
             </div>
 
         </div>
-
     `;
 
 
-    document.body.appendChild(popup);
+    document.body.appendChild(
+        popup
+    );
 
-
-    // CLOSE GALLERY
 
     document
-        .getElementById("silanaCloseGallery")
-        .addEventListener("click", () => {
+        .getElementById(
+            "silanaCloseGallery"
+        )
+        .addEventListener(
+            "click",
+            () => {
+                popup.remove();
+            }
+        );
 
-            popup.remove();
-
-        });
-
-
-    // GRID
 
     const grid =
         document.getElementById(
@@ -880,32 +1099,35 @@ async function openGallery(type) {
         );
 
 
-    // LOAD PERMANENT PHOTOS
-
+    // Load existing permanent photos
     await loadSupabasePhotos(
         type,
         grid
     );
 
 
-    // ADD PHOTO BUTTON
-
+    // Add photo
     document
-        .getElementById("silanaAddPhotoButton")
-        .addEventListener("click", async () => {
+        .getElementById(
+            "silanaAddPhotoButton"
+        )
+        .addEventListener(
+            "click",
+            async () => {
 
-            await startPhotoUpload(
-                type,
-                grid
-            );
+                await openOwnerPhotoControl(
+                    type,
+                    grid
+                );
 
-        });
+            }
+        );
 
 }
 
 
 // ========================================
-// PRODUCT CARD CLICK SYSTEM
+// PRODUCT CARD CLICK
 // ========================================
 
 const productCards =
@@ -937,7 +1159,7 @@ productCards.forEach(card => {
 
     card.addEventListener(
         "click",
-        function () {
+        () => {
 
             openGallery(type);
 
@@ -953,7 +1175,7 @@ productCards.forEach(card => {
 
 document.addEventListener(
     "click",
-    function (event) {
+    function(event) {
 
         if (
             event.target.closest(
@@ -964,7 +1186,7 @@ document.addEventListener(
         }
 
 
-        let element =
+        const element =
             event.target.closest(
                 "article, div, section"
             );
