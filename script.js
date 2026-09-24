@@ -1,6 +1,6 @@
 // ========================================
 // SILANA TAILOR
-// GALLERY + SUPABASE PHOTO UPLOAD
+// GALLERY + SUPABASE PERMANENT PHOTO UPLOAD
 // ========================================
 
 
@@ -14,18 +14,13 @@ const SUPABASE_URL =
 const SUPABASE_PUBLISHABLE_KEY =
     "sb_publishable_21v6WZAxDRwg5oEcXfUQAA_jPWQXU_i";
 
-
-// Safe Supabase connection
 let supabaseClient = null;
 
 if (window.supabase) {
-
-    supabaseClient =
-        window.supabase.createClient(
-            SUPABASE_URL,
-            SUPABASE_PUBLISHABLE_KEY
-        );
-
+    supabaseClient = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+    );
 }
 
 
@@ -33,33 +28,22 @@ if (window.supabase) {
 // MOBILE MENU
 // ========================================
 
-const menuBtn =
-    document.querySelector(".menu-btn");
-
-const navLinks =
-    document.querySelector(".nav-links");
+const menuBtn = document.querySelector(".menu-btn");
+const navLinks = document.querySelector(".nav-links");
 
 if (menuBtn && navLinks) {
 
     menuBtn.addEventListener("click", () => {
-
         navLinks.classList.toggle("show");
-
     });
 
+    document.querySelectorAll(".nav-links a").forEach(link => {
 
-    document
-        .querySelectorAll(".nav-links a")
-        .forEach(link => {
-
-            link.addEventListener("click", () => {
-
-                navLinks.classList.remove("show");
-
-            });
-
+        link.addEventListener("click", () => {
+            navLinks.classList.remove("show");
         });
 
+    });
 }
 
 
@@ -70,47 +54,28 @@ if (menuBtn && navLinks) {
 const gallery = {
 
     shirt: {
-
         title: "Shirt Collection",
-
         image: "images/shirt.jpg"
-
     },
-
 
     trouser: {
-
         title: "Trouser Collection",
-
         image: "images/trouser.jpg"
-
     },
-
 
     suit: {
-
         title: "Suit Collection",
-
         image: "images/suit.jpg"
-
     },
-
 
     kurta: {
-
         title: "Kurta Collection",
-
         image: "images/kurta.jpg"
-
     },
 
-
     sherwani: {
-
         title: "Sherwani Collection",
-
         image: "images/sherwani.jpg"
-
     }
 
 };
@@ -122,158 +87,317 @@ const gallery = {
 
 function getProductType(text) {
 
-    text =
-        text.toLowerCase();
+    text = (text || "").toLowerCase();
 
-
-    if (
-        text.includes("sherwani")
-    ) {
-
+    if (text.includes("sherwani")) {
         return "sherwani";
-
     }
 
-
-    if (
-        text.includes("kurta")
-    ) {
-
+    if (text.includes("kurta")) {
         return "kurta";
-
     }
-
 
     if (
         text.includes("trouser") ||
         text.includes("pants")
     ) {
-
         return "trouser";
-
     }
 
-
-    if (
-        text.includes("shirt")
-    ) {
-
+    if (text.includes("shirt")) {
         return "shirt";
-
     }
-
 
     if (
         text.includes("suit") ||
         text.includes("wedding")
     ) {
-
         return "suit";
-
     }
-
 
     return null;
-
 }
 
 
 // ========================================
-// ADMIN LOGIN
-// ========================================
-
-async function adminLogin() {
-
-    if (!supabaseClient) {
-
-        alert(
-            "Supabase is not loaded. Please refresh the website."
-        );
-
-        return false;
-
-    }
-
-
-    const email =
-        prompt("Enter admin email:");
-
-
-    if (!email) {
-
-        return false;
-
-    }
-
-
-    const password =
-        prompt("Enter admin password:");
-
-
-    if (!password) {
-
-        return false;
-
-    }
-
-
-    const {
-        error
-    } =
-        await supabaseClient.auth
-            .signInWithPassword({
-
-                email: email,
-
-                password: password
-
-            });
-
-
-    if (error) {
-
-        alert(
-            "Login failed:\n\n" +
-            error.message
-        );
-
-        return false;
-
-    }
-
-
-    alert(
-        "Admin login successful!"
-    );
-
-
-    return true;
-
-}
-
-
-// ========================================
-// CHECK LOGIN
+// CHECK ADMIN LOGIN
 // ========================================
 
 async function checkAdminLogin() {
 
     if (!supabaseClient) {
-
         return false;
-
     }
 
-
     const {
-        data
-    } =
-        await supabaseClient.auth
-            .getUser();
+        data,
+        error
+    } = await supabaseClient.auth.getUser();
+
+    if (error || !data || !data.user) {
+        return false;
+    }
+
+    return true;
+}
 
 
-    return !!data.user;
+// ========================================
+// OWNER LOGIN POPUP
+// ========================================
 
+function showLoginPopup() {
+
+    return new Promise((resolve) => {
+
+        const oldPopup =
+            document.getElementById("silanaLoginPopup");
+
+        if (oldPopup) {
+            oldPopup.remove();
+        }
+
+        const popup =
+            document.createElement("div");
+
+        popup.id = "silanaLoginPopup";
+
+        popup.style.cssText = `
+            position:fixed;
+            inset:0;
+            background:rgba(0,0,0,0.88);
+            z-index:1000001;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            padding:20px;
+            box-sizing:border-box;
+        `;
+
+        popup.innerHTML = `
+
+            <div style="
+                width:100%;
+                max-width:420px;
+                background:#111;
+                border:1px solid #c9a86a;
+                border-radius:12px;
+                padding:28px;
+                box-sizing:border-box;
+                position:relative;
+                box-shadow:0 10px 40px rgba(0,0,0,0.5);
+            ">
+
+                <button
+                    id="silanaLoginClose"
+                    style="
+                        position:absolute;
+                        right:15px;
+                        top:10px;
+                        background:none;
+                        border:none;
+                        color:#c9a86a;
+                        font-size:30px;
+                        cursor:pointer;
+                    "
+                >
+                    ×
+                </button>
+
+                <h2 style="
+                    color:#c9a86a;
+                    text-align:center;
+                    margin:0 0 8px;
+                ">
+                    Owner Login
+                </h2>
+
+                <p style="
+                    color:#aaa;
+                    text-align:center;
+                    font-size:13px;
+                    margin-bottom:22px;
+                ">
+                    Login to add photos to Silana Tailor
+                </p>
+
+                <input
+                    id="silanaAdminEmail"
+                    type="email"
+                    placeholder="Owner Email"
+                    autocomplete="username"
+                    style="
+                        width:100%;
+                        padding:13px;
+                        margin-bottom:12px;
+                        border-radius:6px;
+                        border:1px solid #555;
+                        background:#222;
+                        color:white;
+                        box-sizing:border-box;
+                        outline:none;
+                    "
+                >
+
+                <input
+                    id="silanaAdminPassword"
+                    type="password"
+                    placeholder="Password"
+                    autocomplete="current-password"
+                    style="
+                        width:100%;
+                        padding:13px;
+                        margin-bottom:16px;
+                        border-radius:6px;
+                        border:1px solid #555;
+                        background:#222;
+                        color:white;
+                        box-sizing:border-box;
+                        outline:none;
+                    "
+                >
+
+                <button
+                    id="silanaLoginButton"
+                    style="
+                        width:100%;
+                        padding:13px;
+                        background:#c9a86a;
+                        color:#111;
+                        border:none;
+                        border-radius:6px;
+                        font-weight:bold;
+                        cursor:pointer;
+                        font-size:15px;
+                    "
+                >
+                    Login & Continue
+                </button>
+
+                <p
+                    id="silanaLoginMessage"
+                    style="
+                        color:#e0a96d;
+                        text-align:center;
+                        font-size:13px;
+                        margin:14px 0 0;
+                        min-height:18px;
+                    "
+                ></p>
+
+            </div>
+        `;
+
+        document.body.appendChild(popup);
+
+        const emailInput =
+            document.getElementById("silanaAdminEmail");
+
+        const passwordInput =
+            document.getElementById("silanaAdminPassword");
+
+        const loginButton =
+            document.getElementById("silanaLoginButton");
+
+        const message =
+            document.getElementById("silanaLoginMessage");
+
+        const closeButton =
+            document.getElementById("silanaLoginClose");
+
+
+        closeButton.addEventListener("click", () => {
+
+            popup.remove();
+            resolve(false);
+
+        });
+
+
+        loginButton.addEventListener("click", async () => {
+
+            if (!supabaseClient) {
+
+                message.textContent =
+                    "Supabase is not loaded. Refresh the website.";
+
+                return;
+            }
+
+
+            const email =
+                emailInput.value.trim();
+
+            const password =
+                passwordInput.value;
+
+
+            if (!email || !password) {
+
+                message.textContent =
+                    "Please enter email and password.";
+
+                return;
+            }
+
+
+            loginButton.disabled = true;
+            loginButton.textContent = "Logging in...";
+            message.textContent = "";
+
+
+            const {
+                data,
+                error
+            } =
+                await supabaseClient.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+
+
+            if (error) {
+
+                message.textContent =
+                    "Login failed: " + error.message;
+
+                loginButton.disabled = false;
+                loginButton.textContent =
+                    "Login & Continue";
+
+                return;
+            }
+
+
+            if (!data || !data.user) {
+
+                message.textContent =
+                    "Login failed. Please try again.";
+
+                loginButton.disabled = false;
+                loginButton.textContent =
+                    "Login & Continue";
+
+                return;
+            }
+
+
+            popup.remove();
+
+            resolve(true);
+
+        });
+
+
+        passwordInput.addEventListener("keydown", (event) => {
+
+            if (event.key === "Enter") {
+                loginButton.click();
+            }
+
+        });
+
+    });
 }
 
 
@@ -281,19 +405,10 @@ async function checkAdminLogin() {
 // LOAD SAVED SUPABASE PHOTOS
 // ========================================
 
-async function loadSupabasePhotos(
-    type,
-    grid
-) {
+async function loadSupabasePhotos(type, grid) {
 
     if (!supabaseClient) {
-
-        console.log(
-            "Supabase not available."
-        );
-
         return;
-
     }
 
 
@@ -303,55 +418,35 @@ async function loadSupabasePhotos(
     } =
         await supabaseClient.storage
             .from("products")
-            .list(
-
-                type,
-
-                {
-
-                    limit: 100,
-
-                    sortBy: {
-
-                        column: "created_at",
-
-                        order: "desc"
-
-                    }
-
+            .list(type, {
+                limit: 100,
+                sortBy: {
+                    column: "created_at",
+                    order: "desc"
                 }
-
-            );
+            });
 
 
     if (error) {
 
         console.log(
-            "Could not load Supabase photos:",
+            "Could not load photos:",
             error.message
         );
 
         return;
-
     }
 
 
-    if (
-        !data ||
-        data.length === 0
-    ) {
-
+    if (!data || data.length === 0) {
         return;
-
     }
 
 
     data.forEach(file => {
 
         if (!file.name) {
-
             return;
-
         }
 
 
@@ -364,34 +459,26 @@ async function loadSupabasePhotos(
         } =
             supabaseClient.storage
                 .from("products")
-                .getPublicUrl(
-                    filePath
-                );
+                .getPublicUrl(filePath);
 
 
         if (
             !urlData ||
             !urlData.publicUrl
         ) {
-
             return;
-
         }
 
 
         const img =
-            document.createElement(
-                "img"
-            );
+            document.createElement("img");
 
 
         img.src =
             urlData.publicUrl;
 
-
         img.alt =
             `${type} collection`;
-
 
         img.className =
             "supabase-photo";
@@ -417,30 +504,20 @@ async function loadSupabasePhotos(
 // UPLOAD PHOTOS
 // ========================================
 
-async function uploadPhotos(
-    type,
-    files,
-    grid
-) {
+async function uploadPhotos(type, files, grid) {
 
-    if (
-        !files ||
-        files.length === 0
-    ) {
-
+    if (!files || files.length === 0) {
         return;
-
     }
 
 
     if (!supabaseClient) {
 
         alert(
-            "Supabase is not loaded.\nPlease refresh the website."
+            "Supabase is not loaded. Please refresh the website."
         );
 
         return;
-
     }
 
 
@@ -451,35 +528,27 @@ async function uploadPhotos(
     if (!loggedIn) {
 
         loggedIn =
-            await adminLogin();
+            await showLoginPopup();
 
 
         if (!loggedIn) {
-
             return;
-
         }
 
     }
 
 
-    let uploaded =
-        0;
+    let uploaded = 0;
 
 
-    for (
-        const file of files
-    ) {
-
+    for (const file of files) {
 
         if (
-            !file.type.startsWith(
-                "image/"
-            )
+            !file.type ||
+            !file.type.startsWith("image/")
         ) {
 
             continue;
-
         }
 
 
@@ -506,13 +575,9 @@ async function uploadPhotos(
             await supabaseClient.storage
                 .from("products")
                 .upload(
-
                     path,
-
                     file,
-
                     {
-
                         contentType:
                             file.type,
 
@@ -521,23 +586,23 @@ async function uploadPhotos(
 
                         upsert:
                             false
-
                     }
-
                 );
 
 
         if (error) {
+
+            console.log(
+                "Upload error:",
+                error
+            );
 
             alert(
                 "Upload failed:\n\n" +
                 error.message
             );
 
-            console.log(error);
-
             continue;
-
         }
 
 
@@ -555,13 +620,9 @@ async function uploadPhotos(
 
 
         grid
-            .querySelectorAll(
-                ".supabase-photo"
-            )
+            .querySelectorAll(".supabase-photo")
             .forEach(img => {
-
                 img.remove();
-
             });
 
 
@@ -571,6 +632,78 @@ async function uploadPhotos(
         );
 
     }
+
+}
+
+
+// ========================================
+// OPEN FILE PICKER AFTER LOGIN
+// ========================================
+
+async function startPhotoUpload(type, grid) {
+
+    if (!supabaseClient) {
+
+        alert(
+            "Supabase is not loaded. Please refresh the website."
+        );
+
+        return;
+    }
+
+
+    let loggedIn =
+        await checkAdminLogin();
+
+
+    if (!loggedIn) {
+
+        loggedIn =
+            await showLoginPopup();
+
+
+        if (!loggedIn) {
+            return;
+        }
+
+    }
+
+
+    const fileInput =
+        document.createElement("input");
+
+
+    fileInput.type = "file";
+    fileInput.accept = "image/*";
+    fileInput.multiple = true;
+
+
+    fileInput.addEventListener(
+        "change",
+        async () => {
+
+            if (
+                fileInput.files &&
+                fileInput.files.length > 0
+            ) {
+
+                await uploadPhotos(
+                    type,
+                    fileInput.files,
+                    grid
+                );
+
+            }
+
+        }
+    );
+
+
+    document.body.appendChild(fileInput);
+
+    fileInput.click();
+
+    fileInput.remove();
 
 }
 
@@ -586,17 +719,23 @@ async function openGallery(type) {
 
 
     if (!item) {
-
         return;
-
     }
 
 
-    // Create popup
-    const popup =
-        document.createElement(
-            "div"
+    const oldPopup =
+        document.getElementById(
+            "silanaGalleryPopup"
         );
+
+
+    if (oldPopup) {
+        oldPopup.remove();
+    }
+
+
+    const popup =
+        document.createElement("div");
 
 
     popup.id =
@@ -618,17 +757,15 @@ async function openGallery(type) {
 
     popup.innerHTML = `
 
-        <div
-            style="
-                max-width:1000px;
-                margin:auto;
-                background:#111;
-                border:1px solid #c9a86a;
-                padding:25px;
-                border-radius:12px;
-                box-sizing:border-box;
-            "
-        >
+        <div style="
+            max-width:1000px;
+            margin:auto;
+            background:#111;
+            border:1px solid #c9a86a;
+            padding:25px;
+            border-radius:12px;
+            box-sizing:border-box;
+        ">
 
             <button
                 id="silanaCloseGallery"
@@ -646,13 +783,11 @@ async function openGallery(type) {
             </button>
 
 
-            <h2
-                style="
-                    color:#c9a86a;
-                    text-align:center;
-                    margin:0 0 25px 0;
-                "
-            >
+            <h2 style="
+                color:#c9a86a;
+                text-align:center;
+                margin:0 0 25px 0;
+            ">
                 ${item.title}
             </h2>
 
@@ -685,14 +820,13 @@ async function openGallery(type) {
             </div>
 
 
-            <div
-                style="
-                    text-align:center;
-                    margin-top:25px;
-                "
-            >
+            <div style="
+                text-align:center;
+                margin-top:25px;
+            ">
 
-                <label
+                <button
+                    id="silanaAddPhotoButton"
                     style="
                         display:inline-block;
                         background:#c9a86a;
@@ -701,29 +835,19 @@ async function openGallery(type) {
                         border-radius:6px;
                         font-weight:bold;
                         cursor:pointer;
+                        border:none;
+                        font-size:15px;
                     "
                 >
-
                     + Add More Photo
-
-                    <input
-                        id="silanaAddPhotos"
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        style="display:none;"
-                    >
-
-                </label>
+                </button>
 
 
-                <p
-                    style="
-                        color:#aaa;
-                        margin-top:12px;
-                        font-size:13px;
-                    "
-                >
+                <p style="
+                    color:#aaa;
+                    margin-top:12px;
+                    font-size:13px;
+                ">
                     Owner login required to add photos.
                 </p>
 
@@ -734,62 +858,48 @@ async function openGallery(type) {
     `;
 
 
-    document.body.appendChild(
-        popup
-    );
+    document.body.appendChild(popup);
 
 
-    // Close
+    // CLOSE GALLERY
+
     document
-        .getElementById(
-            "silanaCloseGallery"
-        )
-        .addEventListener(
-            "click",
-            () => {
+        .getElementById("silanaCloseGallery")
+        .addEventListener("click", () => {
 
-                popup.remove();
+            popup.remove();
 
-            }
-        );
+        });
 
 
-    // Grid
+    // GRID
+
     const grid =
         document.getElementById(
             "silanaPhotoGrid"
         );
 
 
-    // Load permanent photos
+    // LOAD PERMANENT PHOTOS
+
     await loadSupabasePhotos(
         type,
         grid
     );
 
 
-    // File input
-    const fileInput =
-        document.getElementById(
-            "silanaAddPhotos"
-        );
+    // ADD PHOTO BUTTON
 
+    document
+        .getElementById("silanaAddPhotoButton")
+        .addEventListener("click", async () => {
 
-    fileInput.addEventListener(
-        "change",
-        async function () {
-
-            await uploadPhotos(
+            await startPhotoUpload(
                 type,
-                this.files,
                 grid
             );
 
-
-            this.value = "";
-
-        }
-    );
+        });
 
 }
 
@@ -798,7 +908,6 @@ async function openGallery(type) {
 // PRODUCT CARD CLICK SYSTEM
 // ========================================
 
-// First try normal product cards
 const productCards =
     document.querySelectorAll(
         ".product-card, .collection-card"
@@ -814,14 +923,16 @@ productCards.forEach(card => {
 
 
     if (!type) {
-
         return;
-
     }
 
 
     card.style.cursor =
         "pointer";
+
+
+    card.dataset.galleryAttached =
+        "true";
 
 
     card.addEventListener(
@@ -840,26 +951,19 @@ productCards.forEach(card => {
 // BACKUP CLICK SYSTEM
 // ========================================
 
-// This catches cards even if their class
-// is different from product-card/collection-card.
-
 document.addEventListener(
     "click",
     function (event) {
 
-        // Ignore buttons, links and inputs
         if (
             event.target.closest(
                 "button, a, input, label"
             )
         ) {
-
             return;
-
         }
 
 
-        // Find nearest useful element
         let element =
             event.target.closest(
                 "article, div, section"
@@ -867,9 +971,7 @@ document.addEventListener(
 
 
         if (!element) {
-
             return;
-
         }
 
 
@@ -882,31 +984,21 @@ document.addEventListener(
 
 
         if (!type) {
-
             return;
-
         }
 
 
-        // Prevent huge parent containers
-        if (
-            text.length > 500
-        ) {
-
+        if (text.length > 500) {
             return;
-
         }
 
 
-        // If this card was not already
-        // handled by the normal system
         if (
-            !element.dataset
-                .galleryAttached
+            !element.dataset.galleryAttached
         ) {
 
-            element.dataset
-                .galleryAttached = "true";
+            element.dataset.galleryAttached =
+                "true";
 
 
             openGallery(type);
