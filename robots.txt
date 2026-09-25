@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://rijwan583.github.io/silana-tailor/sitemap.xml
